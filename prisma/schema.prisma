@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Election {
+  id            Int      @id @default(autoincrement())
+  title         String
+  year          Int
+  maxSelections Int
+  startAt       DateTime
+  endAt         DateTime
+  isPublished   Boolean  @default(false)
+
+  candidates ElectionCandidate[]
+  votes      Vote[]
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  VoteSelection VoteSelection[]
+
+  @@index([year])
+}
+
+model Candidate {
+  id       Int     @id @default(autoincrement())
+  name     String
+  bio      String? @db.Text
+  photoUrl String?
+
+  elections     ElectionCandidate[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  VoteSelection VoteSelection[]
+}
+
+model ElectionCandidate {
+  id          Int @id @default(autoincrement())
+  electionId  Int
+  candidateId Int
+  ballotNo    Int // หมายเลขบนบัตรใน election นั้น
+
+  election  Election  @relation(fields: [electionId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([electionId, candidateId])
+  @@unique([electionId, ballotNo])
+  @@index([electionId])
+}
+
+model Vote {
+  id         Int      @id @default(autoincrement())
+  electionId Int
+  memberId   String
+  createdAt  DateTime @default(now())
+  source     String   @default("web")
+  ip         String?
+  userAgent  String?
+
+  election   Election        @relation(fields: [electionId], references: [id])
+  selections VoteSelection[]
+
+  @@unique([electionId, memberId]) // โหวตได้ครั้งเดียวต่อ election
+  @@index([electionId])
+  @@index([memberId])
+}
+
+model VoteSelection {
+  id          Int      @id @default(autoincrement())
+  voteId      Int
+  electionId  Int
+  candidateId Int
+  createdAt   DateTime @default(now())
+
+  vote      Vote      @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  election  Election  @relation(fields: [electionId], references: [id])
+
+  @@unique([voteId, candidateId])
+  @@index([electionId, candidateId])
+}
