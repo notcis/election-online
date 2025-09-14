@@ -12,5 +12,9 @@ export default async function EditPage({
   if (!election) {
     return notFound();
   }
-  return <ElectionForm type="edit" election={election} electionId={id} />;
+  return (
+    <div className="mt-5 max-w-7xl mx-auto">
+      <ElectionForm type="edit" election={election} electionId={id} />
+    </div>
+  );
 }

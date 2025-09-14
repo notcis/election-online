@@ -59,6 +59,25 @@ export const editElection = async (id: string, data: FormData) => {
   }
 };
 
+export const deleteElection = async (id: string) => {
+  try {
+    await prisma.election.delete({
+      where: { id: Number(id) },
+    });
+    revalidatePath(`/admin/e`);
+    return {
+      success: true,
+      message: "Election deleted successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to delete election",
+    };
+  }
+};
+
 export const getElectionById = async (id: string) => {
   const election = await prisma.election.findUnique({
     where: { id: Number(id) },
