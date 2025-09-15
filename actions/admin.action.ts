@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { convertZoneTimeToClient } from "@/utils/utils";
 import { revalidatePath } from "next/cache";
+import { success } from "zod";
 
 export const createElection = async (data: FormData) => {
   try {
@@ -116,3 +117,34 @@ export const getAllElections = async () => {
   }));
   return formattedElections;
 };
+
+export async function getCandidates() {
+  const candidates = await prisma.candidate.findMany({
+    orderBy: { id: "asc" },
+  });
+
+  if (candidates.length === 0) {
+    return [];
+  }
+  return candidates;
+}
+
+export async function addCandidate(data: {
+  name: string;
+  bio?: string;
+  photoUrl?: string;
+}) {
+  if (!data.name) {
+    return { success: false, message: "Name is required" };
+  }
+
+  try {
+    await prisma.candidate.create({ data });
+
+    revalidatePath("/admin/c");
+    return { success: true, message: "Candidate added successfully" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to add candidate" };
+  }
+}

@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${sarabun.className}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${(sarabun.className, "white")}`}>
         {children}
         <Toaster richColors />
       </body>

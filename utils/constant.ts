@@ -16,3 +16,9 @@ export const ELECTION_DEFAULT_VALUE = {
   })(),
   isPublished: "false",
 };
+
+export const CANDIDATE_DEFAULT_VALUE = {
+  name: "",
+  bio: "",
+  photoUrl: "",
+};

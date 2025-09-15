@@ -1,12 +1,11 @@
 "use client";
 
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-
+import MainMenu from "./components/main-menu";
+import MenuTitle from "./components/menu-title";
 import { MenuIcon } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Dispatch, SetStateAction, useState } from "react";
-import MenuTitle from "./components/menu-title";
-import MainMenu from "./components/main-menu";
 
 export default function AdminLayout({
   children,
@@ -41,7 +40,7 @@ type PropsMobile = {
 
 const MobileMenu = ({ mobileMenuOpen, setMobileMenuOpen }: PropsMobile) => {
   return (
-    <div className="p-4 flex justify-between md:hidden sticky top-0 left-0 bg-background border-b border-border">
+    <div className="p-4 flex justify-between md:hidden sticky top-0 left-0 bg-background border-b border-border z-20">
       <MenuTitle />
       <Drawer
         direction="right"
