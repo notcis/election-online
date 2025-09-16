@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default async function ElectionPage({
   params,
@@ -92,13 +93,13 @@ export default async function ElectionPage({
           )}
           {vote ? (
             <div className="space-y-5">
-              <div className=" flex justify-between items-center">
+              <div className=" flex flex-col gap-2.5 sm:gap-0 sm:flex-row sm:justify-between items-center">
                 <div className="font-semibold">คุณได้ลงคะแนนแล้ว</div>
                 <Button asChild>
                   <Link href={`/r/${electionId}`}>ดูคะแนนแบบ Real-time</Link>
                 </Button>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-3">
                 {vote.selections.length > 0 ? (
                   vote.selections
                     .sort((a, b) =>
@@ -107,27 +108,50 @@ export default async function ElectionPage({
                       )
                     )
                     .map((s) => (
-                      <div key={s.id} className="rounded-2xl border p-4">
-                        <div className="font-medium">
-                          เบอร์{" "}
-                          <span className="text-xl">
-                            {
-                              election.candidates.find(
-                                (c) => c.id === s.candidate.id
-                              )?.ballotNo
-                            }
-                          </span>
+                      <div
+                        key={s.id}
+                        className="flex items-center justify-between rounded-2xl border p-4"
+                      >
+                        {/* ซ้าย: หมายเลข + รูป + ชื่อ + bio */}
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          {s.candidate.photoUrl ? (
+                            <Image
+                              src={s.candidate.photoUrl}
+                              alt={s.candidate.name}
+                              width={64}
+                              height={64}
+                              className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="h-16 w-16 rounded-lg bg-muted flex-shrink-0" />
+                          )}
+
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm opacity-80">
+                                หมายเลข{" "}
+                                <span className="font-semibold">
+                                  {
+                                    election.candidates.find(
+                                      (c) => c.id === s.candidate.id
+                                    )?.ballotNo
+                                  }
+                                </span>
+                              </span>
+                            </div>
+                            <div className="font-semibold truncate text-sm sm:text-base">
+                              {s.candidate.name}
+                            </div>
+                          </div>
                         </div>
-                        <div className="font-medium">{s.candidate.name}</div>
-                        {s.candidate.photoUrl && (
-                          <Image
-                            src={s.candidate.photoUrl}
-                            alt={s.candidate.name}
-                            width={400}
-                            height={300}
-                            className="mt-2 w-full rounded-lg object-cover aspect-[4/3]"
+
+                        {/* ขวา: Checkbox (กัน toggle ซ้ำด้วย stopPropagation) */}
+                        <div className="ml-4">
+                          <Checkbox
+                            checked={true}
+                            className="w-6 h-6 border-2 shadow-sm"
                           />
-                        )}
+                        </div>
                       </div>
                     ))
                 ) : (

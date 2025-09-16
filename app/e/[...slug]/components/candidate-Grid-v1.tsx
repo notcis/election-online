@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { toast } from "sonner";
 import { submitNoVote, submitVote } from "@/actions/vote.action";
@@ -27,7 +26,7 @@ type Candidate = {
   };
 };
 
-export default function CandidateGrid({
+export default function CandidateGridV1({
   electionId,
   memberId,
   maxSelections,
@@ -108,86 +107,48 @@ export default function CandidateGrid({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="text-sm opacity-70">
-          เลือกได้ไม่เกิน <span className="font-bold">{maxSelections}</span> คน
+          เลือกได้ไม่เกิน {maxSelections} คน
         </div>
-        <Badge variant="default">เหลือสิทธิ์: {remaining}</Badge>
+        <Badge variant="secondary">เหลือสิทธิ์: {remaining}</Badge>
       </div>
 
-      {/* === เปลี่ยนจาก grid → row แบบ flex (ทั้งแถวคลิกได้) === */}
-      <div className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {candidates.map((ec) => {
           const c = ec.candidate;
           const active = selected.includes(c.id);
-
-          function onRowToggle() {
-            if (!isPending) toggle(c.id);
-          }
-          function onKey(e: React.KeyboardEvent<HTMLDivElement>) {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onRowToggle();
-            }
-          }
-
           return (
-            <div
+            <button
               key={c.id}
-              role="button"
-              tabIndex={0}
-              aria-pressed={active}
-              onClick={onRowToggle}
-              onKeyDown={onKey}
-              className={`flex items-center justify-between rounded-2xl border p-4 transition cursor-pointer
+              onClick={() => toggle(c.id)}
+              className={`cursor-pointer rounded-2xl border p-4 text-left transition
                 ${
                   active
                     ? "ring-2 ring-primary border-primary/50"
                     : "hover:border-foreground/30"
                 }
-                ${isPending ? "opacity-70 pointer-events-none" : ""}
               `}
+              disabled={isPending}
             >
-              {/* ซ้าย: หมายเลข + รูป + ชื่อ + bio */}
-              <div className="flex items-center gap-4 flex-1 min-w-0">
-                {c.photoUrl ? (
-                  <Image
-                    src={c.photoUrl}
-                    alt={c.name}
-                    width={64}
-                    height={64}
-                    className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="h-16 w-16 rounded-lg bg-muted flex-shrink-0" />
-                )}
-
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm opacity-80">
-                      หมายเลข{" "}
-                      <span className="font-semibold">{ec.ballotNo}</span>
-                    </span>
-                    {active && <Badge>เลือกแล้ว</Badge>}
-                  </div>
-                  <div className="font-semibold truncate text-sm sm:text-base">
-                    {c.name}
-                  </div>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">หมายเลข {ec.ballotNo}</span>
+                {active && <Badge>เลือกแล้ว</Badge>}
               </div>
-
-              {/* ขวา: Checkbox (กัน toggle ซ้ำด้วย stopPropagation) */}
-              <div
-                className="ml-4"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-              >
-                <Checkbox
-                  checked={active}
-                  onCheckedChange={() => toggle(c.id)}
-                  disabled={isPending}
-                  className="cursor-pointer w-6 h-6 border-2 shadow-sm"
+              <div className="mt-2 font-semibold text-lg">{c.name}</div>
+              {c.photoUrl && (
+                <Image
+                  src={c.photoUrl}
+                  alt={c.name}
+                  width={400}
+                  height={300}
+                  className="mt-3 w-full rounded-xl object-cover aspect-[4/3]"
                 />
-              </div>
-            </div>
+              )}
+              {c.bio && (
+                <p className="mt-2 text-sm opacity-80 line-clamp-3 text-gray-800">
+                  {c.bio}
+                </p>
+              )}
+            </button>
           );
         })}
       </div>
@@ -209,10 +170,10 @@ export default function CandidateGrid({
           ล้างที่เลือก
         </Button>
         <Button
+          className="cursor-pointer"
           variant="destructive"
           onClick={handleNoVote}
           disabled={isPending || selected.length > 0}
-          className="cursor-pointer"
         >
           {isPending ? "กำลังส่ง..." : "ไม่ประสงค์ลงคะแนน"}
         </Button>
