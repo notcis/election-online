@@ -15,7 +15,7 @@ export default async function page({
   );
   if (!selectedId || Number.isNaN(selectedId)) {
     return (
-      <div className="container max-w-4xl mx-auto py-8">
+      <div className="space-y-5 mt-5 max-w-6xl mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>ไม่พบการเลือกตั้ง</CardTitle>
@@ -27,6 +27,7 @@ export default async function page({
   }
 
   const data = await getElectionEditorData(selectedId);
+
   return (
     <div className="space-y-5 mt-5 max-w-6xl mx-auto">
       <SelectElection elections={elections} selectedId={selectedId} />
