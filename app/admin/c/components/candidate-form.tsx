@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { UploadButton } from "@/lib/uploadthing";
 import Image from "next/image";
-import { addCandidate } from "@/actions/admin.action";
+import { addCandidate, updateCandidate } from "@/actions/admin.action";
 
 const formSchema = z.object({
   name: z.string().min(1).max(100),
@@ -48,14 +48,29 @@ export default function CandidateForm({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await addCandidate(values);
-    if (!res.success) {
-      toast.error(res.message);
-      return;
-    }
+    if (type === "create") {
+      const res = await addCandidate(values);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
 
-    toast.success(res.message);
-    router.push("/admin/c");
+      toast.success(res.message);
+      router.push("/admin/c");
+    } else {
+      if (!candidateId) {
+        toast.error("Candidate ID is required");
+        return;
+      }
+      const res = await updateCandidate(candidateId, values);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success(res.message);
+      router.push("/admin/c");
+    }
   }
 
   const photoUrl = form.watch("photoUrl");

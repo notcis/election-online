@@ -16,6 +16,7 @@ export default function MainMenu({ className }: { className?: string }) {
       <ul className="py-4 grow">
         <MenuItem href="/admin/e">จัดการเลือกตั้ง</MenuItem>
         <MenuItem href="/admin/c">จัดการผู้สมัคร</MenuItem>
+        <MenuItem href="/admin/ec">จัดการการเลือกตั้ง</MenuItem>
       </ul>
       <footer className="flex items-center gap-2 ">
         <Avatar>

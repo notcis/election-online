@@ -15,7 +15,7 @@ export default function DeleteDialog({ onDelete }: { onDelete: () => void }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className=" cursor-pointer" variant="destructive">
+        <Button size="sm" className=" cursor-pointer" variant="destructive">
           ลบ
         </Button>
       </AlertDialogTrigger>

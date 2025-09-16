@@ -1,6 +1,8 @@
 "use client";
 
+import { deleteCandidate } from "@/actions/admin.action";
 import PaginationCustom from "@/components/pagination-custom";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,9 +12,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
+import Link from "next/link";
+import { toast } from "sonner";
+import DeleteDialog from "../../components/delete-dialog";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function CandidateList({ candidates }: { candidates: any[] }) {
+export default function CandidateList({
+  candidates,
+  totalPages,
+  page,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  candidates: any[];
+  totalPages: number;
+  page: number;
+}) {
+  const handleDelete = async (id: string) => {
+    const res = await deleteCandidate(id);
+    if (!res.success) {
+      toast.error(res.message);
+      return;
+    }
+    toast.success(res.message);
+  };
+
   return (
     <>
       <Table>
@@ -42,12 +64,17 @@ export default function CandidateList({ candidates }: { candidates: any[] }) {
               </TableCell>
               <TableCell>{candidate.id}</TableCell>
               <TableCell>{candidate.name}</TableCell>
-              <TableCell className="space-x-4"></TableCell>
+              <TableCell className="space-x-4">
+                <Button size="sm" variant="outline" asChild>
+                  <Link href={`/admin/c/edit/${candidate.id}`}>แก้ไข</Link>
+                </Button>
+                <DeleteDialog onDelete={() => handleDelete(candidate.id)} />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <PaginationCustom currentPage={1} totalPages={10} />
+      <PaginationCustom currentPage={page} totalPages={totalPages} />
     </>
   );
 }

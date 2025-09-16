@@ -13,12 +13,20 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import Link from "next/link";
-import DeleteDialog from "./delete-dialog";
+import DeleteDialog from "../../components/delete-dialog";
 import { deleteElection } from "@/actions/admin.action";
 import { toast } from "sonner";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ElectionList({ elections }: { elections: any[] }) {
+export default function ElectionList({
+  elections,
+  totalPages,
+  page,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  elections: any[];
+  totalPages: number;
+  page: number;
+}) {
   const handleDelete = async (id: string) => {
     const res = await deleteElection(id);
     if (!res.success) {
@@ -65,8 +73,8 @@ export default function ElectionList({ elections }: { elections: any[] }) {
               </TableCell>
               <TableCell>{`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/e/${election.id}/000000`}</TableCell>
               <TableCell className="space-x-4">
-                <Button variant="outline" asChild>
-                  <Link href={`/admin/e/edit/${election.id}`}>Edit</Link>
+                <Button size="sm" variant="outline" asChild>
+                  <Link href={`/admin/e/edit/${election.id}`}>แก้ไข</Link>
                 </Button>
                 <DeleteDialog onDelete={() => handleDelete(election.id)} />
               </TableCell>
@@ -74,7 +82,7 @@ export default function ElectionList({ elections }: { elections: any[] }) {
           ))}
         </TableBody>
       </Table>
-      <PaginationCustom currentPage={1} totalPages={10} />
+      <PaginationCustom currentPage={page} totalPages={totalPages} />
     </>
   );
 }
