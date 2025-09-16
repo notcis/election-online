@@ -2,7 +2,11 @@ import { getElectionDetails } from "@/actions/election.action";
 import { getVoteDetails } from "@/actions/vote.action";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { convertZoneTimeToServer, formatToThaiDate } from "@/utils/utils";
+import {
+  convertZoneTimeToServer,
+  decrypt,
+  formatToThaiDate,
+} from "@/utils/utils";
 import Image from "next/image";
 import CandidateGrid from "./components/candidate-Grid";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,23 +20,49 @@ export default async function ElectionPage({
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
+  // read params
   const { slug } = await params;
 
+  // validate params
   if (slug.length < 2) {
     return notFound();
   }
-  const electionId = slug[0];
-  const memberId = slug[1];
 
+  // extract params
+  const electionId = slug[0];
+  const token = slug[1];
+
+  // validate params
+  if (!electionId || !token) {
+    return notFound();
+  }
+
+  // decrypt token to get memberId
+  const memberId = decrypt(token);
+
+  // validate memberId
+  if (!memberId) {
+    return notFound();
+  }
+
+  //////////// check member /////////
+
+  ///////////////////////////////////
+
+  // fetch election & vote details
   const { election } = await getElectionDetails(electionId);
 
+  // validate election
   if (!election) {
     return notFound();
   }
 
-  const { vote } = await getVoteDetails(electionId, memberId);
+  // fetch vote details (if any)
+  const { vote } = await getVoteDetails(electionId, memberId!);
 
+  // determine if election is open
   const now = convertZoneTimeToServer(new Date());
+  // open if now is between startAt and endAt (inclusive)
   const isOpen = now >= election.startAt && now <= election.endAt;
 
   return (
