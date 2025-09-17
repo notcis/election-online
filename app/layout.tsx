@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sarabun } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
 
 const sarabun = Sarabun({
   subsets: ["thai"],
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${(sarabun.className, "white")}`}>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
         <Toaster richColors />
       </body>
     </html>

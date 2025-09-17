@@ -6,12 +6,14 @@ import MenuTitle from "./components/menu-title";
 import { MenuIcon } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session } = useSession();
   const isDesktop = useMediaQuery("(min-width:768px)");
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,7 +28,7 @@ export default function AdminLayout({
         />
       )}
       <div className="overflow-auto py-2 px-4">
-        <h1 className="pb-4">Welcome back, Notcis!</h1>
+        <h1 className="pb-4">Welcome back, {session?.user?.name}!</h1>
         {children}
       </div>
     </div>

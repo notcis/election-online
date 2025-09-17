@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 const seedElection = async () => {
   const election = await prisma.election.create({
@@ -80,6 +81,21 @@ const seedCandidates = async () => {
   }
 };
 
-seedCandidates();
+const seedUser = async () => {
+  const user = await prisma.user.create({
+    data: {
+      name: "notcis",
+      email: "notcis07@gmail.com",
+      password: bcrypt.hashSync("49310407", 10),
+      role: "admin",
+    },
+  });
+
+  console.log("Created user:", user);
+};
+
+//seedUser();
+
+//seedCandidates();
 
 //seedElection();

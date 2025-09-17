@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import MenuItem from "./menu-item";
 import MenuTitle from "./menu-title";
+import LogoutButton from "./logout-button";
 
 export default function MainMenu({ className }: { className?: string }) {
   return (
@@ -22,9 +23,7 @@ export default function MainMenu({ className }: { className?: string }) {
         <Avatar>
           <AvatarFallback>NC</AvatarFallback>
         </Avatar>
-        <Link href="/" className=" hover:underline">
-          Logout
-        </Link>
+        <LogoutButton />
       </footer>
     </nav>
   );
