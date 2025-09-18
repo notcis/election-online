@@ -2,7 +2,7 @@
 
 import { Prisma } from "@/lib/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { convertZoneTimeToClient } from "@/utils/utils";
+import { convertZoneTimeToClient, csvEscape } from "@/utils/utils";
 import { revalidatePath } from "next/cache";
 
 export const createElection = async (data: FormData) => {
@@ -406,4 +406,70 @@ export async function getVoteDetail(voteId: number) {
 
   if (!vote) throw new Error("Vote not found");
   return vote;
+}
+
+export async function deleteVote(voteId: number) {
+  if (!voteId || Number.isNaN(voteId)) {
+    return {
+      success: false,
+      message: "Invalid voteId",
+    };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.voteSelection.deleteMany({ where: { voteId } });
+      await tx.vote.delete({ where: { id: voteId } });
+    });
+    revalidatePath("/admin/v");
+    return { success: true, message: "Vote deleted successfully" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to delete vote" };
+  }
+}
+
+export async function exportVotesCsv(electionId: number) {
+  if (!electionId || Number.isNaN(electionId))
+    throw new Error("Invalid electionId");
+
+  const rows = await prisma.vote.findMany({
+    where: { electionId },
+    orderBy: { createdAt: "asc" },
+    include: {
+      selections: {
+        include: { candidate: { select: { name: true } } },
+        orderBy: { id: "asc" },
+      },
+    },
+  });
+
+  // header
+  const headers = [
+    "vote_id",
+    "member_number",
+    "created_at",
+    "source",
+    "ip",
+    "user_agent",
+    "selected_names", // รายชื่อผู้สมัครที่เลือก แยกด้วย |
+  ];
+
+  const lines = [headers.join(",")];
+
+  for (const v of rows) {
+    const selectedNames = v.selections.map((s) => s.candidate.name).join("|");
+    const arr = [
+      String(v.id),
+      csvEscape(v.memberId),
+      v.createdAt.toISOString(),
+      v.source,
+      csvEscape(v.ip ?? ""),
+      csvEscape(v.userAgent ?? ""),
+      csvEscape(selectedNames),
+    ];
+    lines.push(arr.join(","));
+  }
+
+  return { filename: `votes_e${electionId}.csv`, csv: lines.join("\n") };
 }

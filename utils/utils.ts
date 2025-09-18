@@ -101,3 +101,11 @@ export function decrypt(token: string) {
     return undefined;
   }
 }
+
+// ช่วย escape ค่า CSV แบบง่าย ๆ
+export function csvEscape(s: string) {
+  if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}

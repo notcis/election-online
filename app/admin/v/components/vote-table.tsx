@@ -1,3 +1,5 @@
+"use client";
+
 import PaginationCustom from "@/components/pagination-custom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import DeleteDialog from "../../components/delete-dialog";
+import { deleteVote, exportVotesCsv } from "@/actions/admin.action";
+import { toast } from "sonner";
+import SearchText from "@/components/search-text";
+import ExportCsvButton from "@/components/export-csv-button";
 
 type VoteRow = {
   id: number;
@@ -25,13 +32,31 @@ export default function VoteTable({
   initialData,
   page,
   totalPages,
+  selectedId,
 }: {
   initialData: VoteRow[];
   page: number;
   totalPages: number;
+  selectedId: number;
 }) {
+  const handleDelete = async (id: number) => {
+    const res = await deleteVote(id);
+    if (!res.success) {
+      toast.error(res.message);
+      return;
+    }
+    toast.success("ลบโหวตสำเร็จ");
+  };
+
   return (
-    <div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchText query="q" placeholder="ค้นหาด้วย Member ID" />
+        <div className="flex gap-2">
+          <ExportCsvButton onExport={() => exportVotesCsv(selectedId)} />
+        </div>
+      </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -66,9 +91,7 @@ export default function VoteTable({
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/admin/v/${vote.id}`}>รายละเอียด</Link>
                       </Button>
-                      <Button variant="destructive" size="sm">
-                        ลบ
-                      </Button>
+                      <DeleteDialog onDelete={() => handleDelete(vote.id)} />
                     </div>
                   </TableCell>
                 </TableRow>

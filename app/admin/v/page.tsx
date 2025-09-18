@@ -6,9 +6,9 @@ import VoteTable from "./components/vote-table";
 export default async function AdminVotePage({
   searchParams,
 }: {
-  searchParams: Promise<{ electionId?: string; page?: string }>;
+  searchParams: Promise<{ electionId?: string; page?: string; q?: string }>;
 }) {
-  const { electionId, page } = await searchParams;
+  const { electionId, page, q } = await searchParams;
 
   const elections = await getElections();
   const selectedId = Number(electionId ?? elections[0]?.id);
@@ -28,7 +28,18 @@ export default async function AdminVotePage({
   const initialData = await listVotes({
     electionId: selectedId,
     page: Number(page ?? "1"),
+    q,
   });
+
+  // serialize createdAt → string
+  const initial = {
+    ...initialData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rows: initialData.rows.map((r: any) => ({
+      ...r,
+      createdAt: r.createdAt.toISOString(),
+    })),
+  };
 
   return (
     <div className="space-y-5 mt-5 max-w-6xl mx-auto">
@@ -37,10 +48,11 @@ export default async function AdminVotePage({
       <VoteTable
         initialData={
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialData.rows as any
+          initial.rows as any
         }
-        page={initialData.page}
-        totalPages={initialData.pages}
+        page={initial.page}
+        totalPages={initial.pages}
+        selectedId={selectedId}
       />
     </div>
   );
