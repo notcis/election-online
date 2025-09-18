@@ -18,6 +18,7 @@ export default function MainMenu({ className }: { className?: string }) {
         <MenuItem href="/admin/e">จัดการเลือกตั้ง</MenuItem>
         <MenuItem href="/admin/c">จัดการผู้สมัคร</MenuItem>
         <MenuItem href="/admin/ec">จัดการการเลือกตั้ง</MenuItem>
+        <MenuItem href="/admin/v">จัดการคะแนนโหวต</MenuItem>
       </ul>
       <footer className="flex items-center gap-2 ">
         <Avatar>

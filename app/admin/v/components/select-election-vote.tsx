@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
-export default function SelectElection({
+export default function SelectElectionVote({
   elections,
   selectedId,
 }: {
@@ -17,12 +17,12 @@ export default function SelectElection({
   async function setElection(formData: FormData) {
     const id = Number(formData.get("electionId"));
     if (!id || Number.isNaN(id)) return;
-    router.push(`/admin/ec?electionId=${id}`);
+    router.push(`/admin/v?electionId=${id}`);
   }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>จัดการผูก Election ↔ Candidate</CardTitle>
+        <CardTitle>จัดการคะแนนโหวต</CardTitle>
       </CardHeader>
       <CardContent>
         <form action={setElection} className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function SelectElection({
           >
             {elections.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.title} ({e.year}) — ไม่เกิน {e.maxSelections}
+                {e.title} ({e.year})
               </option>
             ))}
           </select>

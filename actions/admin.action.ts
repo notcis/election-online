@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@/lib/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { convertZoneTimeToClient } from "@/utils/utils";
 import { revalidatePath } from "next/cache";
@@ -340,4 +341,69 @@ export async function saveElectionCandidates(
   });
 
   return { ok: true };
+}
+
+export async function listVotes({
+  electionId,
+  page = 1,
+  pageSize = 20,
+  q,
+}: {
+  electionId: number;
+  page?: number;
+  pageSize?: number;
+  q?: string; // ค้นหาจาก memberId
+}) {
+  if (!electionId || Number.isNaN(electionId))
+    throw new Error("Invalid electionId");
+
+  const where: Prisma.VoteWhereInput = { electionId };
+  if (q && q.trim()) {
+    const qq = q.trim();
+    // สมาชิกค้นหาจาก memberNumber หรือ fullName
+    where.memberId = {
+      contains: qq,
+    };
+  }
+
+  const [total, rows] = await Promise.all([
+    prisma.vote.count({ where }),
+    prisma.vote.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        id: true,
+        createdAt: true,
+        source: true,
+        ip: true,
+        userAgent: true,
+        memberId: true,
+        _count: { select: { selections: true } },
+      },
+    }),
+  ]);
+
+  return { total, rows, page, pageSize, pages: Math.ceil(total / pageSize) };
+}
+
+export async function getVoteDetail(voteId: number) {
+  if (!voteId || Number.isNaN(voteId)) throw new Error("Invalid voteId");
+
+  const vote = await prisma.vote.findUnique({
+    where: { id: voteId },
+    include: {
+      election: { select: { id: true, title: true, year: true } },
+      selections: {
+        include: {
+          candidate: { select: { id: true, name: true, photoUrl: true } },
+        },
+        orderBy: { id: "asc" },
+      },
+    },
+  });
+
+  if (!vote) throw new Error("Vote not found");
+  return vote;
 }
