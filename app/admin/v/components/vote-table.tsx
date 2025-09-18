@@ -39,15 +39,6 @@ export default function VoteTable({
   totalPages: number;
   selectedId: number;
 }) {
-  const handleDelete = async (id: number) => {
-    const res = await deleteVote(id);
-    if (!res.success) {
-      toast.error(res.message);
-      return;
-    }
-    toast.success("ลบโหวตสำเร็จ");
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -91,7 +82,7 @@ export default function VoteTable({
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/admin/v/${vote.id}`}>รายละเอียด</Link>
                       </Button>
-                      <DeleteDialog onDelete={() => handleDelete(vote.id)} />
+                      <DeleteDialog onDelete={() => deleteVote(vote.id)} />
                     </div>
                   </TableCell>
                 </TableRow>

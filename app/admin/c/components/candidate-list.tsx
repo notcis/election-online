@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
 import DeleteDialog from "../../components/delete-dialog";
 
 export default function CandidateList({
@@ -26,15 +25,6 @@ export default function CandidateList({
   totalPages: number;
   page: number;
 }) {
-  const handleDelete = async (id: string) => {
-    const res = await deleteCandidate(id);
-    if (!res.success) {
-      toast.error(res.message);
-      return;
-    }
-    toast.success(res.message);
-  };
-
   return (
     <>
       <Table>
@@ -68,7 +58,7 @@ export default function CandidateList({
                 <Button size="sm" variant="outline" asChild>
                   <Link href={`/admin/c/edit/${candidate.id}`}>แก้ไข</Link>
                 </Button>
-                <DeleteDialog onDelete={() => handleDelete(candidate.id)} />
+                <DeleteDialog onDelete={() => deleteCandidate(candidate.id)} />
               </TableCell>
             </TableRow>
           ))}

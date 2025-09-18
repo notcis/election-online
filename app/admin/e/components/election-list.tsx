@@ -15,7 +15,6 @@ import { format } from "date-fns";
 import Link from "next/link";
 import DeleteDialog from "../../components/delete-dialog";
 import { deleteElection } from "@/actions/admin.action";
-import { toast } from "sonner";
 
 export default function ElectionList({
   elections,
@@ -27,15 +26,6 @@ export default function ElectionList({
   totalPages: number;
   page: number;
 }) {
-  const handleDelete = async (id: string) => {
-    const res = await deleteElection(id);
-    if (!res.success) {
-      toast.error(res.message);
-      return;
-    }
-    toast.success(res.message);
-  };
-
   return (
     <>
       <Table>
@@ -71,12 +61,12 @@ export default function ElectionList({
                   <Badge variant="destructive">ปิด</Badge>
                 )}
               </TableCell>
-              <TableCell>{`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/e/${election.id}/000000`}</TableCell>
+              <TableCell>{`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/e/${election.id}/`}</TableCell>
               <TableCell className="space-x-4">
                 <Button size="sm" variant="outline" asChild>
                   <Link href={`/admin/e/edit/${election.id}`}>แก้ไข</Link>
                 </Button>
-                <DeleteDialog onDelete={() => handleDelete(election.id)} />
+                <DeleteDialog onDelete={() => deleteElection(election.id)} />
               </TableCell>
             </TableRow>
           ))}
